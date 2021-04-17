@@ -10,5 +10,6 @@
 #include <stdarg.h>
 
 void dprintf(const char *fmt, ...);
+char* convertIntegerToChar(uint64_t N);
 
 #endif

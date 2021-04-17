@@ -5,8 +5,9 @@
 # Released as open source under GPLv3
 
 import argparse, sys
+import time
 from pcap import PcapBleWriter
-from sniffle_hw import SniffleHW, BLE_ADV_AA, PacketMessage, DebugMessage, StateMessage
+from sniffle_hw import SniffleHW, BLE_ADV_AA, PacketMessage, DebugMessage, StateMessage, NewDebugMessage
 from packet_decoder import (DPacketMessage, AdvaMessage, AdvDirectIndMessage, AdvExtIndMessage,
         ConnectIndMessage, DataMessage)
 from binascii import unhexlify
@@ -119,18 +120,39 @@ def main():
     # zero timestamps and flush old packets
     hw.mark_and_flush()
 
+    startTime = time.time()
+
     global pcwriter
     if not (args.output is None):
         pcwriter = PcapBleWriter(args.output)
+        if args.output.endswith('.pcap'):
+            args.debugOutput = args.output[:-5] + '_dbg'
+        else:
+            args.debugOutput = args.output + '_dbg'
+        fh = open(args.debugOutput, 'a')
+        fh.write('---SESSION_START---\n')
+        fh.close()
 
     while True:
         msg = hw.recv_and_decode()
-        print_message(msg, args.quiet)
+        print_message(msg, args.quiet, args, startTime)
 
-def print_message(msg, quiet):
+def print_message(msg, quiet,  args, startTime):
     if isinstance(msg, PacketMessage):
         print_packet(msg, quiet)
-    elif isinstance(msg, DebugMessage) or isinstance(msg, StateMessage):
+    elif isinstance(msg, DebugMessage) or isinstance(msg, NewDebugMessage):
+        print(msg)
+        if not (args.debugOutput is None):
+            timeDiff = time.time() - startTime
+            fh = open(args.debugOutput, 'a')
+            msgStr = msg.__str__()
+            if msgStr.startswith('NEW DEBUG: hop'):
+                return
+            if msgStr.startswith('NEW DEBUG: '):
+                msgStr = msgStr[len('NEW DEBUG: '):]
+            fh.write(msgStr + '|ts:' + timeDiff.__str__() + '\n')
+            fh.close()
+    elif isinstance(msg, StateMessage):
         print(msg, end='\n\n')
 
 def print_packet(pkt, quiet):

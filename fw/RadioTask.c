@@ -31,6 +31,11 @@
 #include <DelayStopTrigger.h>
 #include <AuxAdvScheduler.h>
 
+#include <debug.h>
+#include <string.h>
+
+#include <messenger.h>
+
 /***** Defines *****/
 #define RADIO_TASK_STACK_SIZE 1024
 #define RADIO_TASK_PRIORITY   3
@@ -761,6 +766,8 @@ void reactToPDU(const BLE_Frame *frame)
     }
 }
 
+uint8_t diff = 0;
+char messageString[512];
 static void reactToDataPDU(const BLE_Frame *frame)
 {
     uint8_t LLID;
@@ -771,6 +778,9 @@ static void reactToDataPDU(const BLE_Frame *frame)
     uint16_t nextInstant;
     const struct RadioConfig *last_rconf;
     struct RadioConfig next_rconf;
+
+    uint8_t windowSize;
+    uint16_t interval;
 
     /* clock synchronization
      * first packet on each channel is anchor point
@@ -849,6 +859,18 @@ static void reactToDataPDU(const BLE_Frame *frame)
         next_rconf.slaveLatency = *(uint16_t *)(frame->pData + 6);
         nextInstant = *(uint16_t *)(frame->pData + 12);
         rconf_enqueue(nextInstant, &next_rconf);
+
+        windowSize = (uint8_t)(frame->pData[3]);
+        interval = *(uint16_t *)(frame->pData + 6);
+        strcpy(messageString, "t:cu|ins:");
+        strcat(messageString, convertIntegerToChar(nextInstant - (connEventCount % 65536)));
+        strcat(messageString, "|ws:");
+        strcat(messageString, convertIntegerToChar(windowSize));
+        strcat(messageString, "|wo:");
+        strcat(messageString, convertIntegerToChar(next_rconf.offset));
+        strcat(messageString, "|int:");
+        strcat(messageString, convertIntegerToChar(interval));
+        dprintf(messageString);
         break;
     case 0x01: // LL_CHANNEL_MAP_IND
         if (datLen != 8) break;
@@ -860,6 +882,12 @@ static void reactToDataPDU(const BLE_Frame *frame)
         next_rconf.slaveLatency = last_rconf->slaveLatency;
         nextInstant = *(uint16_t *)(frame->pData + 8);
         rconf_enqueue(nextInstant, &next_rconf);
+
+        strcpy(messageString, "t:cm|ins:");
+        strcat(messageString, convertIntegerToChar(nextInstant - (connEventCount % 65536)));
+        strcat(messageString, "|m:");
+        strcat(messageString, convertIntegerToChar(next_rconf.chanMap));
+        dprintf(messageString);
         break;
     case 0x02: // LL_TERMINATE_IND
         if (datLen != 2) break;
@@ -874,26 +902,47 @@ static void reactToDataPDU(const BLE_Frame *frame)
         next_rconf.offset = 0;
         next_rconf.hopIntervalTicks = last_rconf->hopIntervalTicks;
         // we don't handle different M->S and S->M PHYs, assume both match
+        strcpy(messageString, "t:pu|phy:");
         switch (frame->pData[3] & 0x7)
         {
         case 0x1:
             next_rconf.phy = PHY_1M;
+            strcat(messageString, "1m|ins:");
             break;
         case 0x2:
             next_rconf.phy = PHY_2M;
+            strcat(messageString, "2m|ins:");
             break;
         case 0x4:
             next_rconf.phy = PHY_CODED_S8;
+            strcat(messageString, "cod|ins:");
             break;
         default:
+            strcat(messageString, "def|ins:");
             next_rconf.phy = last_rconf->phy;
             break;
         }
         next_rconf.slaveLatency = last_rconf->slaveLatency;
         nextInstant = *(uint16_t *)(frame->pData + 5);
         rconf_enqueue(nextInstant, &next_rconf);
+
+        strcat(messageString, convertIntegerToChar(nextInstant - (connEventCount % 65536)));
+        dprintf(messageString);
+        break;
+    case 0x24: // LL_POWER_CONTROL_RSP
+        strcpy(messageString, "t:pcr");
+        dprintf(messageString);
+        break;
+    case 0x25: //  LL_POWER_CHANGE_IND
+        strcpy(messageString, "t:pci");
+        dprintf(messageString);
         break;
     default:
+        strcpy(messageString, "t:");
+        strcat(messageString, convertIntegerToChar((uint8_t)(opcode)));
+        strcat(messageString, "|len:");
+        strcat(messageString, convertIntegerToChar(datLen));
+        dprintf(messageString);
         break;
     }
 }
@@ -1086,6 +1135,11 @@ static void handleConnReq(PHY_Mode phy, uint32_t connTime, uint8_t *llData,
     rconf.phy = phy;
     rconf.slaveLatency = *(uint16_t *)(llData + 12);
     connEventCount = 0;
+    strcpy(messageString, "t:con|int:");
+    strcat(messageString, convertIntegerToChar(Interval));
+    strcat(messageString, "|m:");
+    strcat(messageString, convertIntegerToChar(rconf.chanMap));
+    dprintf(messageString);
     rconf_reset();
 }
 

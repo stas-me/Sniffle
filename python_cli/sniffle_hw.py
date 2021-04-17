@@ -148,7 +148,7 @@ class SniffleHW:
             if mtype == 0x10:
                 return PacketMessage(mbody, self.decoder_state)
             elif mtype == 0x11:
-                return DebugMessage(mbody)
+                return NewDebugMessage(mbody)
             elif mtype == 0x12:
                 return MarkerMessage(mbody, self.decoder_state)
             elif mtype == 0x13:
@@ -357,3 +357,18 @@ class StateMessage:
     def __str__(self):
         return "TRANSITION: %s from %s" % (str(self.new_state),
                 str(self.last_state))
+
+
+class NewDebugMessage:
+    def __init__(self, raw_msg):
+        self.msg = str(raw_msg, encoding='latin-1')
+        self.raw = raw_msg
+
+    def __repr__(self):
+        return "%s(msg=%s)" % (type(self).__name__, repr(self.msg))
+
+    def __str__(self):
+        # print(self.raw)
+        return "NEW DEBUG: " + self.msg
+        # return "DEBUG: " + self.msg + ' ' + str(int.from_bytes(self.raw, "big"))
+
