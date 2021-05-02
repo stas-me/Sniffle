@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Crypto homework</title>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<style type="text/css">
+		.chart{
+			/*margin-top: 18px;*/
+			float: left;
+		}
+	</style>
+</head>
+<body>
+
+<div id="instant-num-per-conn-upd" class="chart" style="width: 25%;"></div>
+<div id="instant-num-per-map-upd" class="chart" style="width: 25%;"></div>
+<div id="instant-num-per-phy-upd" class="chart" style="width: 25%;"></div>
+<div id="instant-num-total" class="chart" style="width: 25%;"></div>
+<div id="channel-map" class="chart" style="width: 60%"></div><div style="width: 40%">&nbsp;</div> <br>
+<div id="size-of-map-range" class="chart" style="width: 30%"></div>
+<div id="number-of-map-ranges" class="chart" style="width: 17%"></div>
+<div id="number-of-channels-between-ranges" class="chart" style="width: 35%"></div>
+<div id="phy-modes" class="chart" style="width: 20%"></div>
+<div id="win-offset" class="chart" style="width: 20%"></div>
+<div id="win-size" class="chart" style="width: 20%"></div>
+<div id="interval" class="chart" style="width: 20%"></div><div style="width: 20%">&nbsp;</div>
+<div id="12-byte-pdus" class="chart" style="width: 20%"></div>
+<div id="pdu-length-frequency" class="chart" style="width: 25%"></div>
+<div id="time-between-map-updates" class="chart" style="width: 70%"></div>
+
+	<script>
+
+///////////////////////////////////////////////////////
+
+
+var trace1 = {
+  type: 'bar',
+  textposition: 'auto',
+  hoverinfo: 'none',
+  opacity: 0.5,
+  marker: {
+    color: 'rgb(158,202,225)',
+    line: {
+      color: 'rgb(8,48,107)',
+      width: 1.5
+    }
+  }
+};
+
+///////////////////////////////////////////////////////
+
+var xValue = [{{channel-map-x}}];
+var yValue = [{{channel-map-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Channel map'
+};
+
+Plotly.newPlot('channel-map', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{instant-num-per-conn-upd-x}}];
+var yValue = [{{instant-num-per-conn-upd-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Instants for LL_CONNECTION_UPDATE_IND'
+};
+
+Plotly.newPlot('instant-num-per-conn-upd', data, layout);
+
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{instant-num-per-map-upd-x}}];
+var yValue = [{{instant-num-per-map-upd-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Instants for LL_CHANNEL_MAP_IND'
+};
+
+Plotly.newPlot('instant-num-per-map-upd', data, layout);
+
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{instant-num-per-phy-upd-x}}];
+var yValue = [{{instant-num-per-phy-upd-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Instants for LL_PHY_UPDATE_IND'
+};
+
+Plotly.newPlot('instant-num-per-phy-upd', data, layout);
+
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{instant-num-total-x}}];
+var yValue = [{{instant-num-total-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Instants for all PDUs combined'
+};
+
+Plotly.newPlot('instant-num-total', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{size-of-map-range-x}}];
+var yValue = [{{size-of-map-range-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Size of map range'
+};
+
+Plotly.newPlot('size-of-map-range', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{number-of-map-ranges-x}}];
+var yValue = [{{number-of-map-ranges-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Number of map ranges'
+};
+
+Plotly.newPlot('number-of-map-ranges', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{number-of-channels-between-ranges-x}}];
+var yValue = [{{number-of-channels-between-ranges-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Number of channels between ranges'
+};
+
+Plotly.newPlot('number-of-channels-between-ranges', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = ['1M', '2M', 'Coded'];
+var yValue = [{{phy-modes-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'PHY modes'
+};
+
+Plotly.newPlot('phy-modes', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{win-offset-x}}];
+var yValue = [{{win-offset-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Window offset'
+};
+
+Plotly.newPlot('win-offset', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{win-size-x}}];
+var yValue = [{{win-size-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Window size'
+};
+
+Plotly.newPlot('win-size', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{interval-x}}];
+var yValue = [{{interval-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: 'Interval'
+};
+
+Plotly.newPlot('interval', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = ['CON_UPD', 'POWER_CON', 'POWER_CHA'];
+var yValue = [{{12-byte-pdus-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+var layout = {
+  title: '12 byte PDUs occurrence frequency'
+};
+
+Plotly.newPlot('12-byte-pdus', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = [{{pdu-length-frequency-x}}];
+var yValue = [{{pdu-length-frequency-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'PDU length frequency'
+};
+
+Plotly.newPlot('pdu-length-frequency', data, layout);
+
+
+///////////////////////////////////////////////////////
+
+
+var xValue = ['⠀0⠀', '⠀1⠀', '⠀2⠀', '⠀3⠀', '⠀4⠀', '⠀5⠀', '⠀6⠀', '⠀7⠀', '⠀8⠀', '⠀9⠀', '⠀10⠀', '11-14', '14-17', '17-20', '20-30', '30-40', '40-60', '60+'];
+var xValue = [{{time-between-map-updates-x}}];
+var yValue = [{{time-between-map-updates-y}}];
+
+trace1.x = xValue;
+trace1.y = yValue;
+trace1.text = yValue.map(String);
+
+var data = [trace1];
+
+
+var layout = {
+  title: 'Time between channel map updates'
+};
+
+Plotly.newPlot('time-between-map-updates', data, layout);
+
+
+
+///////////////////////////////////////////////////////
+
+
+</script>
+
+</body>
+</html>
